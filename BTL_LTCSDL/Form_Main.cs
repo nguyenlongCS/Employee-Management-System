@@ -19,7 +19,7 @@ namespace BTL_LTCSDL
         {
             InitializeComponent();
             SetupDataGridView();
-            LoadData();          // Nạp dữ liệu từ SQL
+            LoadData(); // Nạp dữ liệu từ SQL
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -197,6 +197,18 @@ namespace BTL_LTCSDL
                 MessageBox.Show("Thêm nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
+            // Thêm dữ liệu vào DataGridView từ row[1]
+            dataGridView1.Rows.Add(
+                textBox_Employeed.Text,
+                textBox_Name.Text + " " + textBox_Surname.Text,
+                dateTime_DateOfBirth.Value.ToString("dd/MM/yyyy"),
+                (DateTime.Now.Year - dateTime_DateOfBirth.Value.Year).ToString(), // Tính tuổi
+                gender,
+                textBox_CCCD.Text,
+                textBox_SDT.Text,
+                textBox_DepartmentID.Text,
+                textBox_Division.Text
+            );
             // Thêm dữ liệu vào DataGridView từ row[1]
             dataGridView1.Rows.Add(
                 textBox_Employeed.Text,
