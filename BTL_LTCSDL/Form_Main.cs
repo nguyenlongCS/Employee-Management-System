@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,13 @@ namespace BTL_LTCSDL
 {
     public partial class Form_Main : Form
     {
+        string connectionString = "Server=LONG_ACER\\SQLEXPRESS;Database=NhanVien;Integrated Security=True;";
+
         public Form_Main()
         {
             InitializeComponent();
+            SetupDataGridView();
+            LoadData();          // Nạp dữ liệu từ SQL
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -135,6 +140,146 @@ namespace BTL_LTCSDL
                 item.SubItems.Add(record.CheckOut);
                 listView1.Items.Add(item);
             }
+        }
+
+        private void button_Add_Click(object sender, EventArgs e)
+        {
+            string gender = radioBut_Male.Checked ? "Male" : "Female";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // Kiểm tra trùng Mã Nhân Viên
+                string checkQuery = "SELECT COUNT(*) FROM Employee WHERE EmployeeID = @EmployeeID";
+                using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@EmployeeID", textBox_Employeed.Text);
+                    int count = (int)checkCmd.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Mã Nhân Viên đã tồn tại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                // Kiểm tra trùng CCCD
+                checkQuery = "SELECT COUNT(*) FROM Employee WHERE CCCD = @CCCD";
+                using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@CCCD", textBox_CCCD.Text);
+                    int countCCCD = (int)checkCmd.ExecuteScalar();
+                    if (countCCCD > 0)
+                    {
+                        MessageBox.Show("CCCD đã tồn tại! Vui lòng nhập CCCD khác.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+
+                // Chèn vào SQL Server
+                string insertQuery = "INSERT INTO Employee (EmployeeID, Name, Surname, DateOfBirth, Gender, CCCD, SDT, DepartmentID, Division) " +
+                                     "VALUES (@EmployeeID, @Name, @Surname, @DateOfBirth, @Gender, @CCCD, @SDT, @DepartmentID, @Division)";
+                using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@EmployeeID", textBox_Employeed.Text);
+                    cmd.Parameters.AddWithValue("@Name", textBox_Name.Text);
+                    cmd.Parameters.AddWithValue("@Surname", textBox_Surname.Text);
+                    cmd.Parameters.AddWithValue("@DateOfBirth", dateTime_DateOfBirth.Value);
+                    cmd.Parameters.AddWithValue("@Gender", gender);
+                    cmd.Parameters.AddWithValue("@CCCD", textBox_CCCD.Text);
+                    cmd.Parameters.AddWithValue("@SDT", textBox_SDT.Text);
+                    cmd.Parameters.AddWithValue("@DepartmentID", textBox_DepartmentID.Text);
+                    cmd.Parameters.AddWithValue("@Division", textBox_Division.Text);
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                MessageBox.Show("Thêm nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            // Thêm dữ liệu vào DataGridView từ row[1]
+            dataGridView1.Rows.Add(
+                textBox_Employeed.Text,
+                textBox_Name.Text + " " + textBox_Surname.Text,
+                dateTime_DateOfBirth.Value.ToString("dd/MM/yyyy"),
+                (DateTime.Now.Year - dateTime_DateOfBirth.Value.Year).ToString(), // Tính tuổi
+                gender,
+                textBox_CCCD.Text,
+                textBox_SDT.Text,
+                textBox_DepartmentID.Text,
+                textBox_Division.Text
+            );
+
+            // Xóa nội dung các TextBox sau khi thêm
+            ClearInputFields();
+        }
+
+        // Hàm xóa nội dung nhập sau khi thêm nhân viên
+        private void ClearInputFields()
+        {
+            textBox_Employeed.Clear();
+            textBox_Name.Clear();
+            textBox_Surname.Clear();
+            textBox_CCCD.Clear();
+            textBox_SDT.Clear();
+            textBox_DepartmentID.Clear();
+            textBox_Division.Clear();
+            radioBut_Male.Checked = false;
+            radioBut_Female.Checked = false;
+        }
+
+
+
+        private void LoadData()
+        {
+            dataGridView1.Rows.Clear(); // Xóa dữ liệu cũ, giữ lại tiêu đề row[0]
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"
+            SELECT EmployeeID, Name + ' ' + Surname AS [Tên Nhân Viên], 
+                   DateOfBirth, 
+                   DATEDIFF(YEAR, DateOfBirth, GETDATE()) AS Tuổi,
+                   Gender, CCCD, SDT, DepartmentID, Division 
+            FROM Employee";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        dataGridView1.Rows.Add(
+                            reader["EmployeeID"],
+                            reader["Tên Nhân Viên"],
+                            Convert.ToDateTime(reader["DateOfBirth"]).ToString("dd/MM/yyyy"),
+                            reader["Tuổi"],
+                            reader["Gender"],
+                            reader["CCCD"],
+                            reader["SDT"],
+                            reader["DepartmentID"],
+                            reader["Division"]
+                        );
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+        private void SetupDataGridView()
+        {
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.AllowUserToAddRows = false; // Không cho phép thêm dòng trống
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }
