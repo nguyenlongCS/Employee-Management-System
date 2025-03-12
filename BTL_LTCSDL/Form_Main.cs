@@ -245,6 +245,7 @@ namespace BTL_LTCSDL
         private void LoadData()
         {
             dataGridView1.Rows.Clear(); // Xóa dữ liệu cũ, giữ lại tiêu đề row[0]
+            dataGridView_DSNV.ClearSelection();
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -272,6 +273,17 @@ namespace BTL_LTCSDL
                             reader["DepartmentID"],
                             reader["Division"]
                         );
+                        dataGridView_DSNV.Rows.Add(
+                            reader["EmployeeID"],
+                            reader["Tên Nhân Viên"],
+                            Convert.ToDateTime(reader["DateOfBirth"]).ToString("dd/MM/yyyy"),
+                            reader["Tuổi"],
+                            reader["Gender"],
+                            reader["CCCD"],
+                            reader["SDT"],
+                            reader["DepartmentID"],
+                            reader["Division"]
+                        );
                     }
                 }
             }
@@ -287,11 +299,24 @@ namespace BTL_LTCSDL
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.AllowUserToAddRows = false; // Không cho phép thêm dòng trống
+            dataGridView_DSNV.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView_DSNV.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView_DSNV.AllowUserToAddRows = false; 
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
+        }
+
+        private void dataGridView_DSNV_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void button_Show_Click(object sender, EventArgs e)
+        {
+            TabControl.SelectedTab = tabPage_DanhSachNV;
         }
     }
 }

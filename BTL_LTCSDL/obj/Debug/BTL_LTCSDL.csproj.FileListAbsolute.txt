@@ -36,3 +36,7 @@ C:\Users\thanh\Employee-Management-System\BTL_LTCSDL\obj\Debug\BTL_LTCSDL.csproj
 C:\Users\thanh\Employee-Management-System\BTL_LTCSDL\obj\Debug\BTL_LTCSDL.csproj.Up2Date
 C:\Users\thanh\Employee-Management-System\BTL_LTCSDL\obj\Debug\BTL_LTCSDL.exe
 C:\Users\thanh\Employee-Management-System\BTL_LTCSDL\obj\Debug\BTL_LTCSDL.pdb
+C:\Users\thanh\Employee-Management-System\BTL_LTCSDL\bin\Debug\BTL_LTCSDL.exe.manifest
+C:\Users\thanh\Employee-Management-System\BTL_LTCSDL\bin\Debug\BTL_LTCSDL.application
+C:\Users\thanh\Employee-Management-System\BTL_LTCSDL\obj\Debug\BTL_LTCSDL.exe.manifest
+C:\Users\thanh\Employee-Management-System\BTL_LTCSDL\obj\Debug\BTL_LTCSDL.application
