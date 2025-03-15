@@ -13,7 +13,7 @@ namespace BTL_LTCSDL
 {
     public partial class Form_Main : Form
     {
-        string connectionString = "Server=LONG_ACER\\SQLEXPRESS;Database=NhanVien;Integrated Security=True;";
+        string connectionString = "Server=LONG_ACER\\SQLEXPRESS;Database=QL_NhanVien;Integrated Security=True;";
 
         public Form_Main()
         {
@@ -26,23 +26,6 @@ namespace BTL_LTCSDL
         {
             label_RealTime.Text = DateTime.Now.ToString("HH:mm:ss dd/MM/yyyy");
         }
-        // Định nghĩa class lưu thông tin nhân viên và lịch sử chấm công
-        class EmployeeRecord
-        {
-            public string EmployeeID { get; set; }
-            public string EmployeeName { get; set; }
-            public string Date { get; set; }
-            public string CheckIn { get; set; }
-            public string CheckOut { get; set; }
-        }
-
-        // Danh sách lịch sử chấm công
-        List<EmployeeRecord> history = new List<EmployeeRecord>
-        {
-            new EmployeeRecord { EmployeeID = "NV001", EmployeeName = "Nguyễn Văn A", Date = "02/05/2025", CheckIn = "08:00", CheckOut = "17:00" },
-            new EmployeeRecord { EmployeeID = "NV001", EmployeeName = "Nguyễn Văn A", Date = "02/05/2025", CheckIn = "09:00", CheckOut = "18:00" },
-            new EmployeeRecord { EmployeeID = "NV001", EmployeeName = "Nguyễn Văn A", Date = "03/05/2025", CheckIn = "08:15", CheckOut = "17:05" }
-        };
         private void Form_Main_Load(object sender, EventArgs e)
         {
             timer1.Interval = 1000; // Cập nhật mỗi giây
@@ -74,11 +57,7 @@ namespace BTL_LTCSDL
             dateTimePicker2.Enabled = !radioButton_RealTime2.Checked; // Tắt nếu chọn "Thời gian hiện tại"
         }
 
-        private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
+        
         private void button_CheckIn_Click(object sender, EventArgs e)
         {
             string checkInTime;
@@ -109,54 +88,20 @@ namespace BTL_LTCSDL
             MessageBox.Show("Mã nhân viên: \n" + "Tên Nhân Viên: \n" + "Đã check-out lúc: " + checkInTime, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void guna2TabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button_Search_ChamCong_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox_Search_ChamCong_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-
-        private void button_LichSuChamCong_Click(object sender, EventArgs e)
-        {
-            // Xóa dữ liệu cũ trong ListView
-            listView1.Items.Clear();
-
-            // Thêm dữ liệu lịch sử vào ListView
-            foreach (var record in history)
-            {
-                ListViewItem item = new ListViewItem(record.EmployeeID);
-                item.SubItems.Add(record.EmployeeName);
-                item.SubItems.Add(record.Date);
-                item.SubItems.Add(record.CheckIn);
-                item.SubItems.Add(record.CheckOut);
-                listView1.Items.Add(item);
-            }
-        }
-
         private void button_Add_Click(object sender, EventArgs e)
         {
-            string gender = radioBut_Male.Checked ? "Male" : "Female";
+            bool gioiTinh = radioBut_Male.Checked; // Nam: true, Nữ: false
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
 
                 // Kiểm tra trùng Mã Nhân Viên
-                string checkQuery = "SELECT COUNT(*) FROM Employee WHERE EmployeeID = @EmployeeID";
+                string checkQuery = "SELECT COUNT(*) FROM NhanVien WHERE MaNV = @MaNV";
                 using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
                 {
-                    checkCmd.Parameters.AddWithValue("@EmployeeID", textBox_Employeed.Text);
-                    int count = (int)checkCmd.ExecuteScalar();
-                    if (count > 0)
+                    checkCmd.Parameters.AddWithValue("@MaNV", textBox_Employeed.Text);
+                    if ((int)checkCmd.ExecuteScalar() > 0)
                     {
                         MessageBox.Show("Mã Nhân Viên đã tồn tại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
@@ -164,65 +109,38 @@ namespace BTL_LTCSDL
                 }
 
                 // Kiểm tra trùng CCCD
-                checkQuery = "SELECT COUNT(*) FROM Employee WHERE CCCD = @CCCD";
+                checkQuery = "SELECT COUNT(*) FROM NhanVien WHERE CCCD = @CCCD";
                 using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
                 {
                     checkCmd.Parameters.AddWithValue("@CCCD", textBox_CCCD.Text);
-                    int countCCCD = (int)checkCmd.ExecuteScalar();
-                    if (countCCCD > 0)
+                    if ((int)checkCmd.ExecuteScalar() > 0)
                     {
-                        MessageBox.Show("CCCD đã tồn tại! Vui lòng nhập CCCD khác.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("CCCD đã tồn tại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
                 }
 
                 // Chèn vào SQL Server
-                string insertQuery = "INSERT INTO Employee (EmployeeID, Name, Surname, DateOfBirth, Gender, CCCD, SDT, DepartmentID, Division) " +
-                                     "VALUES (@EmployeeID, @Name, @Surname, @DateOfBirth, @Gender, @CCCD, @SDT, @DepartmentID, @Division)";
+                string insertQuery = "INSERT INTO NhanVien (MaNV, HoNV, TenNV, DiaChi, SoDT, Email, NgaySinh, GioiTinh, CCCD, ChucVu, MaPB) " +
+                                     "VALUES (@MaNV, @HoNV, @TenNV, @DiaChi, @SoDT, @Email, @NgaySinh, @GioiTinh, @CCCD, @ChucVu, @MaPB)";
                 using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
                 {
-                    cmd.Parameters.AddWithValue("@EmployeeID", textBox_Employeed.Text);
-                    cmd.Parameters.AddWithValue("@Name", textBox_Name.Text);
-                    cmd.Parameters.AddWithValue("@Surname", textBox_Surname.Text);
-                    cmd.Parameters.AddWithValue("@DateOfBirth", dateTime_DateOfBirth.Value);
-                    cmd.Parameters.AddWithValue("@Gender", gender);
+                    cmd.Parameters.AddWithValue("@MaNV", textBox_Employeed.Text);
+                    cmd.Parameters.AddWithValue("@HoNV", textBox_Surname.Text);
+                    cmd.Parameters.AddWithValue("@TenNV", textBox_Name.Text);
+                    cmd.Parameters.AddWithValue("@DiaChi", textBox_DiaChi.Text);
+                    cmd.Parameters.AddWithValue("@SoDT", textBox_SDT.Text);
+                    cmd.Parameters.AddWithValue("@Email", textBox_email.Text);
+                    cmd.Parameters.AddWithValue("@NgaySinh", dateTime_DateOfBirth.Value);
+                    cmd.Parameters.AddWithValue("@GioiTinh", gioiTinh);
                     cmd.Parameters.AddWithValue("@CCCD", textBox_CCCD.Text);
-                    cmd.Parameters.AddWithValue("@SDT", textBox_SDT.Text);
-                    cmd.Parameters.AddWithValue("@DepartmentID", textBox_DepartmentID.Text);
-                    cmd.Parameters.AddWithValue("@Division", textBox_Division.Text);
-
+                    cmd.Parameters.AddWithValue("@ChucVu", textBox_ChucVu.Text);
+                    cmd.Parameters.AddWithValue("@MaPB", textBox_MaPhongBan.Text);
                     cmd.ExecuteNonQuery();
                 }
-
                 MessageBox.Show("Thêm nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
-            // Thêm dữ liệu vào DataGridView từ row[1]
-            dataGridView1.Rows.Add(
-                textBox_Employeed.Text,
-                textBox_Name.Text + " " + textBox_Surname.Text,
-                dateTime_DateOfBirth.Value.ToString("dd/MM/yyyy"),
-                (DateTime.Now.Year - dateTime_DateOfBirth.Value.Year).ToString(), // Tính tuổi
-                gender,
-                textBox_CCCD.Text,
-                textBox_SDT.Text,
-                textBox_DepartmentID.Text,
-                textBox_Division.Text
-            );
-            // Thêm dữ liệu vào DataGridView từ row[1]
-            dataGridView1.Rows.Add(
-                textBox_Employeed.Text,
-                textBox_Name.Text + " " + textBox_Surname.Text,
-                dateTime_DateOfBirth.Value.ToString("dd/MM/yyyy"),
-                (DateTime.Now.Year - dateTime_DateOfBirth.Value.Year).ToString(), // Tính tuổi
-                gender,
-                textBox_CCCD.Text,
-                textBox_SDT.Text,
-                textBox_DepartmentID.Text,
-                textBox_Division.Text
-            );
-
-            // Xóa nội dung các TextBox sau khi thêm
+            LoadData(); // Tải lại dữ liệu sau khi thêm
             ClearInputFields();
         }
 
@@ -234,55 +152,39 @@ namespace BTL_LTCSDL
             textBox_Surname.Clear();
             textBox_CCCD.Clear();
             textBox_SDT.Clear();
-            textBox_DepartmentID.Clear();
-            textBox_Division.Clear();
+            textBox_MaPhongBan.Clear();
+            textBox_ChucVu.Clear();
             radioBut_Male.Checked = false;
             radioBut_Female.Checked = false;
         }
 
-
-
         private void LoadData()
         {
-            dataGridView1.Rows.Clear(); // Xóa dữ liệu cũ, giữ lại tiêu đề row[0]
-            dataGridView_DSNV.ClearSelection();
-
+            dataGridView1.Rows.Clear();
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                string query = @"
-            SELECT EmployeeID, Name + ' ' + Surname AS [Tên Nhân Viên], 
-                   DateOfBirth, 
-                   DATEDIFF(YEAR, DateOfBirth, GETDATE()) AS Tuổi,
-                   Gender, CCCD, SDT, DepartmentID, Division 
-            FROM Employee";
+                string query = "SELECT MaNV, HoNV + ' ' + TenNV AS [Tên Nhân Viên], DiaChi, SoDT, Email, " +
+                               "NgaySinh, CASE WHEN GioiTinh = 1 THEN 'Nam' WHEN GioiTinh = 0 THEN 'Nữ' ELSE NULL END AS GioiTinh, " +
+                               "CCCD, ChucVu, MaPB FROM NhanVien";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
+                        string ngaySinh = reader["NgaySinh"] != DBNull.Value ? Convert.ToDateTime(reader["NgaySinh"]).ToString("dd/MM/yyyy") : "N/A";
+                        string gioiTinh = reader["GioiTinh"] != DBNull.Value ? reader["GioiTinh"].ToString() : "Không xác định";
+
                         dataGridView1.Rows.Add(
-                            reader["EmployeeID"],
-                            reader["Tên Nhân Viên"],
-                            Convert.ToDateTime(reader["DateOfBirth"]).ToString("dd/MM/yyyy"),
-                            reader["Tuổi"],
-                            reader["Gender"],
-                            reader["CCCD"],
-                            reader["SDT"],
-                            reader["DepartmentID"],
-                            reader["Division"]
+                            reader["MaNV"], reader["Tên Nhân Viên"], reader["DiaChi"],
+                            reader["SoDT"], reader["Email"], ngaySinh,
+                            gioiTinh, reader["CCCD"], reader["ChucVu"], reader["MaPB"]
                         );
                         dataGridView_DSNV.Rows.Add(
-                            reader["EmployeeID"],
-                            reader["Tên Nhân Viên"],
-                            Convert.ToDateTime(reader["DateOfBirth"]).ToString("dd/MM/yyyy"),
-                            reader["Tuổi"],
-                            reader["Gender"],
-                            reader["CCCD"],
-                            reader["SDT"],
-                            reader["DepartmentID"],
-                            reader["Division"]
+                            reader["MaNV"], reader["Tên Nhân Viên"], reader["DiaChi"],
+                            reader["SoDT"], reader["Email"], ngaySinh,
+                            gioiTinh, reader["CCCD"], reader["ChucVu"], reader["MaPB"]
                         );
                     }
                 }
@@ -293,30 +195,56 @@ namespace BTL_LTCSDL
 
 
 
-
         private void SetupDataGridView()
         {
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.AllowUserToAddRows = false; // Không cho phép thêm dòng trống
+            
+            dataGridView1.Columns.Clear();
+            dataGridView1.Columns.Add("MaNV", "Mã NV");
+            dataGridView1.Columns.Add("TenNV", "Tên Nhân Viên");
+            dataGridView1.Columns.Add("DiaChi", "Địa Chỉ");
+            dataGridView1.Columns.Add("SoDT", "Số ĐT");
+            dataGridView1.Columns.Add("Email", "Email");
+            dataGridView1.Columns.Add("NgaySinh", "Ngày Sinh");
+            dataGridView1.Columns.Add("GioiTinh", "Giới Tính");
+            dataGridView1.Columns.Add("CCCD", "CCCD");
+            dataGridView1.Columns.Add("ChucVu", "Chức Vụ");
+            dataGridView1.Columns.Add("MaPB", "Mã PB");
+
             dataGridView_DSNV.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView_DSNV.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView_DSNV.AllowUserToAddRows = false; 
-        }
+            dataGridView_DSNV.AllowUserToAddRows = false;
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void dataGridView_DSNV_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
+            dataGridView_DSNV.Columns.Clear();
+            dataGridView_DSNV.Columns.Add("MaNV", "Mã NV");
+            dataGridView_DSNV.Columns.Add("TenNV", "Tên Nhân Viên");
+            dataGridView_DSNV.Columns.Add("DiaChi", "Địa Chỉ");
+            dataGridView_DSNV.Columns.Add("SoDT", "Số ĐT");
+            dataGridView_DSNV.Columns.Add("Email", "Email");
+            dataGridView_DSNV.Columns.Add("NgaySinh", "Ngày Sinh");
+            dataGridView_DSNV.Columns.Add("GioiTinh", "Giới Tính");
+            dataGridView_DSNV.Columns.Add("CCCD", "CCCD");
+            dataGridView_DSNV.Columns.Add("ChucVu", "Chức Vụ");
+            dataGridView_DSNV.Columns.Add("MaPB", "Mã PB");
         }
 
         private void button_Show_Click(object sender, EventArgs e)
         {
             TabControl.SelectedTab = tabPage_DanhSachNV;
+        }
+
+        private void TabControl_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            if (e.TabPage == tabPage_CaLam) 
+            {
+                e.Cancel = true; // Hủy sự kiện chọn tab
+            }
+            if (e.TabPage == tabPage_Report)
+            {
+                e.Cancel = true; // Hủy sự kiện chọn tab
+            }
         }
     }
 }

@@ -3,11 +3,11 @@
   "WorkspaceRootPath": "C:\\Users\\thanh\\Employee-Management-System\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{21D21F8B-46B3-41EE-BD8D-D1B5565FA86A}|BTL_LTCSDL\\BTL_LTCSDL.csproj|c:\\users\\thanh\\employee-management-system\\btl_ltcsdl\\form_main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{21D21F8B-46B3-41EE-BD8D-D1B5565FA86A}|BTL_LTCSDL\\BTL_LTCSDL.csproj|C:\\Users\\thanh\\Employee-Management-System\\btl_ltcsdl\\form_main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{21D21F8B-46B3-41EE-BD8D-D1B5565FA86A}|BTL_LTCSDL\\BTL_LTCSDL.csproj|solutionrelative:btl_ltcsdl\\form_main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{21D21F8B-46B3-41EE-BD8D-D1B5565FA86A}|BTL_LTCSDL\\BTL_LTCSDL.csproj|C:\\Users\\thanh\\Employee-Management-System\\btl_ltcsdl\\form_main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{21D21F8B-46B3-41EE-BD8D-D1B5565FA86A}|BTL_LTCSDL\\BTL_LTCSDL.csproj|c:\\users\\thanh\\employee-management-system\\btl_ltcsdl\\form_main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{21D21F8B-46B3-41EE-BD8D-D1B5565FA86A}|BTL_LTCSDL\\BTL_LTCSDL.csproj|solutionrelative:btl_ltcsdl\\form_main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -41,9 +41,11 @@
               "RelativeDocumentMoniker": "BTL_LTCSDL\\Form_Main.cs",
               "ToolTip": "C:\\Users\\thanh\\Employee-Management-System\\BTL_LTCSDL\\Form_Main.cs",
               "RelativeToolTip": "BTL_LTCSDL\\Form_Main.cs",
-              "ViewState": "AgIAAC4BAAAAAAAAAAAowD8BAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAMoAAAAAAAAAAAAcwAgAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-05T07:40:22.303Z"
+              "WhenOpened": "2025-03-05T07:40:22.303Z",
+              "IsPinned": true,
+              "EditorCaption": ""
             }
           ]
         }
